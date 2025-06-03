@@ -1,5 +1,11 @@
 crudini NEWS                                    -*- outline -*-
 
+* Noteworthy changes in release 0.9.7 (????-??-??)
+
+  Support non UTF-8 encoded files.  Previously non UTF-8
+  encoded files would have thrown an exception.
+
+
 * Noteworthy changes in release 0.9.6 (2025-04-16)
 
   Support BOM correctly.  Previously we would have stripped any

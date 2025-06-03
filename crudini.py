@@ -17,6 +17,7 @@ import getopt
 import hashlib
 import iniparse
 import io
+import locale
 import os
 import re
 import shutil
@@ -31,6 +32,14 @@ else:
     import pipes
     import ConfigParser as configparser
 
+
+# We try utf-8 by default, but allow the user to override.
+# See https://peps.python.org/pep-0686/ for details.
+def env_encoding():
+    try:
+        return locale.getencoding()
+    except:
+        return locale.getpreferredencoding(do_setlocale=False)
 
 user_encoding = 'utf-8'  # user specified items
 file_encoding = 'utf-8'  # encoding of ini file contents
@@ -883,7 +892,18 @@ Options:
                     ifp = os.fdopen(sys.stdin.fileno(), 'rb')
                 else:
                     ifp = self.locked_file.fp
-                self.data = ifp.read().decode(file_encoding)
+
+                _data = ifp.read()
+
+                global file_encoding
+                # latin1 should work for all files as a fallback.
+                for file_encoding in ('utf-8', env_encoding(), 'latin1'):
+                    try:
+                        self.data = _data.decode(file_encoding)
+                    except UnicodeDecodeError:
+                        continue
+                    else:
+                        break
                 if self.mode != '--get':
                     # compare checksums to flag any changes
                     # (even spacing or case adjustments) with --verbose,

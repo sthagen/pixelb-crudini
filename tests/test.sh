@@ -716,3 +716,11 @@ rm file.conf
 crudini --set file.conf default --set file.conf default # double new
 diff -u good.conf file.conf && ok || fail
 rm file.conf good.conf
+
+# Test non UTF-8 encoded file
+printf '9d = \x9d' > latin1.conf
+# Gets may be output as single or multi-byte depending on locale
+crudini --get latin1.conf '' 9d || fail
+# Note setting works on linux at least, but needs matching locale
+# LC_ALL=en_US.iso-8859-1 crudini.py --set latin1.conf '' 9d $'\xe1'
+rm latin1.conf
